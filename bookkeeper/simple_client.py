@@ -1,14 +1,20 @@
 """
 Простой тестовый скрипт для терминала
 """
-
+import os
 from bookkeeper.models.category import Category
 from bookkeeper.models.expense import Expense
-from bookkeeper.repository.memory_repository import MemoryRepository
+from bookkeeper.repository.sqlite_repository import SQLiteRepository
 from bookkeeper.utils import read_tree
 
-cat_repo = MemoryRepository[Category]()
-exp_repo = MemoryRepository[Expense]()
+# cat_repo = MemoryRepository[Category]()
+# exp_repo = MemoryRepository[Expense]()
+
+
+DB_FILE = os.path.join(os.getcwd(), 'databases', 'simple.db')
+
+cat_repo: SQLiteRepository[Category] = SQLiteRepository(DB_FILE, Category)
+exp_repo: SQLiteRepository[Expense] = SQLiteRepository(DB_FILE, Expense)
 
 cats = '''
 продукты
@@ -20,7 +26,8 @@ cats = '''
 одежда
 '''.splitlines()
 
-Category.create_from_tree(read_tree(cats), cat_repo)
+if cat_repo.get(1) is None:
+    Category.create_from_tree(read_tree(cats), cat_repo)
 
 while True:
     try:
